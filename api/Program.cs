@@ -1,5 +1,6 @@
 using API.Context;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using System;
 
 namespace API
@@ -14,7 +15,6 @@ namespace API
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
 
             IConfiguration Configuration = builder.Configuration;
 
@@ -24,6 +24,10 @@ namespace API
             builder.Services.AddDbContext<AppDBContext>(options =>
                     options.UseNpgsql(connectionString));
 
+            builder.Services.AddSwaggerGen(opt =>
+            {
+                opt.SwaggerDoc("v1", new OpenApiInfo { Title = "MyAPI", Version = "v1" });
+            });
 
 
             var app = builder.Build();
