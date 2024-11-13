@@ -67,6 +67,19 @@ namespace API.Controllers
             return Ok("User sign up successful");
         }
 
+        // DELETE: api/User
+        public async Task<IActionResult> DeleteUser(string id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
         private bool UserExists (string id)
         {
             return _context.Users.Any(e => e.Id == id);
