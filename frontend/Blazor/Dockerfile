@@ -9,17 +9,17 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["frontend/Blazor/Blazor.csproj", "frontend/Blazor/"]
-RUN dotnet restore "./frontend/Blazor/./Blazor.csproj"
+COPY ["api/API.csproj", "api/"]
+RUN dotnet restore "./api/./API.csproj"
 COPY . .
-WORKDIR "/src/frontend/Blazor"
-RUN dotnet build "./Blazor.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/api"
+RUN dotnet build "./API.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./Blazor.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "Blazor.dll"]
+ENTRYPOINT ["dotnet", "API.dll"]
