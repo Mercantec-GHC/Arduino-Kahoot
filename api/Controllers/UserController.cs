@@ -68,6 +68,7 @@ namespace API.Controllers
         }
 
         // DELETE: api/User
+        [HttpDelete]
         public async Task<IActionResult> DeleteUser(string id)
         {
             var user = await _context.Users.FindAsync(id);
