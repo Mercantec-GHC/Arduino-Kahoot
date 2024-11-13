@@ -15,6 +15,7 @@ namespace API
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
 
             IConfiguration Configuration = builder.Configuration;
 
