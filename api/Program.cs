@@ -33,6 +33,8 @@ namespace API
 
             var app = builder.Build();
 
+            app.UseCors(x => x.AllowAnyMethod().AllowAnyHeader().SetIsOriginAllowed(origin => true).AllowCredentials());
+
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
             {
