@@ -1,8 +1,3 @@
-using API.Context;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
-using System;
-
 namespace API
 {
     public class Program
@@ -25,6 +20,28 @@ namespace API
             builder.Services.AddDbContext<AppDBContext>(options =>
                     options.UseNpgsql(connectionString));
 
+            builder.Services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(x =>
+            {
+                x.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidIssuer = Configuration["JwtSettings:Issuer"],
+                    ValidAudience = Configuration["JwtSettings:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey
+                    (
+                    Encoding.UTF8.GetBytes(Configuration["JwtSettings:Key"])
+                    ),
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true
+                };
+            });
+
             builder.Services.AddSwaggerGen(opt =>
             {
                 opt.SwaggerDoc("v1", new OpenApiInfo { Title = "MyAPI", Version = "v1" });
@@ -41,9 +58,6 @@ namespace API
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
             });
-
-            //app.UseHttpsRedirection();
-            //app.MapGet("/", () => Results.Ok("API is running"));
 
             app.UseAuthorization();
 

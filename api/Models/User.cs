@@ -28,8 +28,9 @@
         public string Password { get; set; }
     }
 
-    public class DeleteUserDTO
+    public class LoginDTO
     {
-
+        public string Email { get; set; }
+        public string Password { get; set; }
     }
 }

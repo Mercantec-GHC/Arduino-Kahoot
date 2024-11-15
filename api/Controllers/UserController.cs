@@ -1,12 +1,4 @@
-﻿using API.Context;
-using API.Models;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Text.RegularExpressions;
-using BCrypt.Net;
-
-namespace API.Controllers
+﻿namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -21,7 +13,7 @@ namespace API.Controllers
             _configuration = configuration;
         }
 
-        // GET: api/Users
+        // GET: api/User
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserDTO>>> GetUsers()
         {
@@ -37,10 +29,10 @@ namespace API.Controllers
         }
 
         // POST: api/User
-        [HttpPost]
+        [HttpPost("createUser")]
         public async Task<ActionResult<User>> PostUser(CreateUserDTO createUserDTO)
         {
-            if (await _context.Users.AnyAsync(u => u.Username == createUserDTO.Username)) 
+            if (await _context.Users.AnyAsync(u => u.Username == createUserDTO.Username))
             {
                 return Conflict(new { message = "Username already in use" });
             }
@@ -48,7 +40,7 @@ namespace API.Controllers
             {
                 return Conflict(new { message = "Email already in use" });
             }
-            if (!IsPasswordSecure(createUserDTO.Password)) 
+            if (!IsPasswordSecure(createUserDTO.Password))
             {
                 return Conflict(new { message = "Password isn't secure" });
             }
@@ -67,8 +59,30 @@ namespace API.Controllers
             return Ok("User sign up successful");
         }
 
+        // POST: api/User
+        [HttpPost("login")]
+        public async Task<IActionResult> LoginUser(LoginDTO loginDTO)
+        {
+            try
+            {
+                var user = await _context.Users.SingleOrDefaultAsync(u => u.Email == loginDTO.Email);
+                if (user == null || !BCrypt.Net.BCrypt.Verify(loginDTO.Password, user.HashedPassword))
+                {
+                    return Unauthorized(new { message = "Invalid email or password" });
+                }
+
+                var token = GenerateJwtToken(user);
+                return Ok(new { token, user.Username, user.Id });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in Login: {ex.Message}");
+                return StatusCode(500, "Internal server error.");
+            }
+        }
+
         // DELETE: api/User
-        [HttpDelete]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(string id)
         {
             var user = await _context.Users.FindAsync(id);
@@ -79,6 +93,39 @@ namespace API.Controllers
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
             return NoContent();
+        }
+
+        // JWT Token used to login User and how long their session is valid for
+        private string GenerateJwtToken(User user)
+        {
+            var keyString = _configuration["JwtSettings:Key"] ?? Environment.GetEnvironmentVariable("Key");
+            var issuer = _configuration["JwtSettings:Issuer"] ?? Environment.GetEnvironmentVariable("Issuer");
+            var audience = _configuration["JwtSettings:Audience"] ?? Environment.GetEnvironmentVariable("Audience");
+
+            // Log the values
+            Console.WriteLine($"Key: {keyString}");
+            Console.WriteLine($"Issuer: {issuer}");
+            Console.WriteLine($"Audience: {audience}");
+
+            var claims = new[]
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()), // Convert ID to string
+            };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(keyString));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer,
+                audience,
+                claims,
+                expires: DateTime.Now.AddDays(1),
+                signingCredentials: creds);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
         private bool UserExists (string id)
