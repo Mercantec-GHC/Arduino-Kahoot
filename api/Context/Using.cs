@@ -4,6 +4,7 @@ global using System.IdentityModel.Tokens.Jwt;
 global using Microsoft.IdentityModel.Tokens;
 global using System.Text.RegularExpressions;
 global using Microsoft.EntityFrameworkCore;
+global using Microsoft.AspNetCore.Http;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.OpenApi.Models;
 global using System.Security.Claims;
