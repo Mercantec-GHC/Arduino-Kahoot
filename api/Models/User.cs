@@ -11,7 +11,7 @@
         public DateTime LastLogin { get; set; }
         
 
-        public List<Quiz> UserQuizzes { get; set; }
+        public List<UserQuiz> UserQuizzes { get; set; }
     }
 
     public class UserDTO
