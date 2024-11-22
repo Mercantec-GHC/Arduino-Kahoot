@@ -7,7 +7,7 @@
         private readonly AppDBContext _context;
         private readonly IConfiguration _configuration;
 
-        public QuizController(AppDBContext context, IConfiguration configuration)
+        public QuizController(AppDBContext context)
         {
             _context = context;
         }
