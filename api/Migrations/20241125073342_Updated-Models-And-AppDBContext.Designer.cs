@@ -3,6 +3,7 @@ using System;
 using API.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace API.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    partial class AppDBContextModelSnapshot : ModelSnapshot
+    [Migration("20241125073342_Updated-Models-And-AppDBContext")]
+    partial class UpdatedModelsAndAppDBContext
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -53,7 +56,7 @@ namespace API.Migrations
 
                     b.HasIndex("QuizId");
 
-                    b.ToTable("Answers", (string)null);
+                    b.ToTable("Answers");
                 });
 
             modelBuilder.Entity("API.Models.Question", b =>
@@ -77,7 +80,7 @@ namespace API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Questions", (string)null);
+                    b.ToTable("Questions");
                 });
 
             modelBuilder.Entity("API.Models.Quiz", b =>
@@ -105,7 +108,7 @@ namespace API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Quizzes", (string)null);
+                    b.ToTable("Quizzes");
                 });
 
             modelBuilder.Entity("API.Models.User", b =>
@@ -150,7 +153,7 @@ namespace API.Migrations
                     b.HasIndex("Username")
                         .IsUnique();
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("API.Models.UserQuiz", b =>
@@ -178,7 +181,7 @@ namespace API.Migrations
 
                     b.HasIndex("UserID");
 
-                    b.ToTable("UserQuizzes", (string)null);
+                    b.ToTable("UserQuizzes");
                 });
 
             modelBuilder.Entity("API.Models.Answer", b =>

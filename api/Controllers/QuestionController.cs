@@ -32,7 +32,7 @@ namespace API.Controllers
                 QuizID = q.QuizID,
                 Answers = q.Answers.Select(a => new AnswerDTO
                 {
-                    Text = a.AnswerContext,
+                    AnswerContext = a.AnswerContext,
                     IsCorrect = a.IsCorrect
                 }).ToList()
             }).ToList();
@@ -64,7 +64,7 @@ namespace API.Controllers
             };
         }
 
-        // POST api/<QuestionController>
+        // POST api/Questions
         [HttpPost]
         public void Post([FromBody] string value)
         {
