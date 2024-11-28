@@ -27,7 +27,7 @@ namespace API.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("text");
 
-                    b.Property<string>("AnswerContext")
+                    b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -41,9 +41,6 @@ namespace API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("QuizId")
-                        .HasColumnType("text");
-
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -51,9 +48,7 @@ namespace API.Migrations
 
                     b.HasIndex("QuestionID");
 
-                    b.HasIndex("QuizId");
-
-                    b.ToTable("Answers", (string)null);
+                    b.ToTable("Answers");
                 });
 
             modelBuilder.Entity("API.Models.Question", b =>
@@ -77,7 +72,9 @@ namespace API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Questions", (string)null);
+                    b.HasIndex("QuizID");
+
+                    b.ToTable("Questions");
                 });
 
             modelBuilder.Entity("API.Models.Quiz", b =>
@@ -96,16 +93,12 @@ namespace API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("QuizIDForQuestion")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Quizzes", (string)null);
+                    b.ToTable("Quizzes");
                 });
 
             modelBuilder.Entity("API.Models.User", b =>
@@ -150,7 +143,7 @@ namespace API.Migrations
                     b.HasIndex("Username")
                         .IsUnique();
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("API.Models.UserQuiz", b =>
@@ -178,7 +171,7 @@ namespace API.Migrations
 
                     b.HasIndex("UserID");
 
-                    b.ToTable("UserQuizzes", (string)null);
+                    b.ToTable("UserQuizzes");
                 });
 
             modelBuilder.Entity("API.Models.Answer", b =>
@@ -188,10 +181,15 @@ namespace API.Migrations
                         .HasForeignKey("QuestionID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
 
+            modelBuilder.Entity("API.Models.Question", b =>
+                {
                     b.HasOne("API.Models.Quiz", null)
-                        .WithMany("Answers")
-                        .HasForeignKey("QuizId");
+                        .WithMany("Questions")
+                        .HasForeignKey("QuizID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("API.Models.UserQuiz", b =>
@@ -220,7 +218,7 @@ namespace API.Migrations
 
             modelBuilder.Entity("API.Models.Quiz", b =>
                 {
-                    b.Navigation("Answers");
+                    b.Navigation("Questions");
 
                     b.Navigation("UserQuizzes");
                 });

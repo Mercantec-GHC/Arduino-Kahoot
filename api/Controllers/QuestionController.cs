@@ -30,9 +30,14 @@ namespace API.Controllers
                 Id = q.Id,
                 Content = q.Content,
                 QuizID = q.QuizID,
-                Answers = q.Answers.Select(a => new AnswerDTO
+                Answers = q.Answers.Select(a => new Answer
                 {
-                    IsCorrect = a.IsCorrect
+                    Content = a.Content,
+                    IsCorrect = a.IsCorrect,
+                    QuestionID = a.QuestionID,
+                    Id = a.Id,
+                    CreatedAt = a.CreatedAt,
+                    UpdatedAt = a.UpdatedAt
                 }).ToList()
             }).ToList();
         }
@@ -55,41 +60,46 @@ namespace API.Controllers
                 Id = question.Id,
                 Content = question.Content,
                 QuizID = question.QuizID,
-                Answers = question.Answers.Select(a => new AnswerDTO
+                Answers = question.Answers.Select(a => new Answer
                 {
-                    AnswerContext = a.AnswerContext,
+                    Content = a.Content,
                     IsCorrect = a.IsCorrect
                 }).ToList()
             };
-        }
-
-        // POST api/Questions
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
         }
 
         // POST: api/Questions
-        [HttpPost]
-        public async Task<ActionResult<Question>> CreateQuestion(CreateQuestionDTO createQuestionDTO)
+        [HttpPost("createQuestion")]
+        public async Task<ActionResult<Question>> PostQuestion([FromBody]CreateQuestionDTO createQuestionDTO)
         {
+
+            if (string.IsNullOrEmpty(createQuestionDTO.QuizID) || string.IsNullOrEmpty(createQuestionDTO.Content))
+            {
+                return BadRequest("QuizID and Content are required.");
+            }
+
+            var quiz = await _context.Quizzes
+                .Include(q => q.Questions) // Include related questions
+                .FirstOrDefaultAsync(q => q.Id == createQuestionDTO.QuizID);
+
             var question = new Question
             {
+                Id = Guid.NewGuid().ToString("N"),
                 Content = createQuestionDTO.Content,
                 QuizID = createQuestionDTO.QuizID,
-                Answers = createQuestionDTO.Answers.Select(a => new Answer
-                {
-                    AnswerContext = a.AnswerContext,
-                    IsCorrect = a.IsCorrect
-                }).ToList()
+                CreatedAt = DateTime.UtcNow.AddHours(1),
+                UpdatedAt = DateTime.UtcNow.AddHours(1),
             };
+
+            quiz.Questions.Add(question);
 
             _context.Questions.Add(question);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetQuestion), new { id = question.Id }, question);
+            return Ok($"Question added to quiz {quiz.Name}");
         }
 
+        // UPDATE: api/Questions/{id}
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateQuestion(string id, CreateQuestionDTO updateQuestionDTO)
         {
@@ -106,13 +116,7 @@ namespace API.Controllers
             question.Content = updateQuestionDTO.Content;
             question.QuizID = updateQuestionDTO.QuizID;
 
-            // Update answers
-            question.Answers.Clear();
-            question.Answers.AddRange(updateQuestionDTO.Answers.Select(a => new Answer
-            {
-                AnswerContext = a.AnswerContext,
-                IsCorrect = a.IsCorrect
-            }));
+            
 
             question.UpdatedAt = DateTime.UtcNow; // Update timestamp
 

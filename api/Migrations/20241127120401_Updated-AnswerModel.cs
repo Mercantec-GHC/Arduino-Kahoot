@@ -6,26 +6,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace API.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class UpdatedAnswerModel : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "Questions",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "text", nullable: false),
-                    Content = table.Column<string>(type: "text", nullable: false),
-                    QuizID = table.Column<string>(type: "text", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Questions", x => x.Id);
-                });
-
             migrationBuilder.CreateTable(
                 name: "Quizzes",
                 columns: table => new
@@ -33,7 +18,6 @@ namespace API.Migrations
                     Id = table.Column<string>(type: "text", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
-                    QuizIDForQuestion = table.Column<string>(type: "text", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
@@ -62,31 +46,24 @@ namespace API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Answers",
+                name: "Questions",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
-                    AnswerContext = table.Column<string>(type: "text", nullable: false),
-                    IsCorrect = table.Column<bool>(type: "boolean", nullable: false),
-                    QuestionID = table.Column<string>(type: "text", nullable: false),
-                    QuizId = table.Column<string>(type: "text", nullable: true),
+                    Content = table.Column<string>(type: "text", nullable: false),
+                    QuizID = table.Column<string>(type: "text", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Answers", x => x.Id);
+                    table.PrimaryKey("PK_Questions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Answers_Questions_QuestionID",
-                        column: x => x.QuestionID,
-                        principalTable: "Questions",
+                        name: "FK_Questions_Quizzes_QuizID",
+                        column: x => x.QuizID,
+                        principalTable: "Quizzes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Answers_Quizzes_QuizId",
-                        column: x => x.QuizId,
-                        principalTable: "Quizzes",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -116,15 +93,37 @@ namespace API.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Answers",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "text", nullable: false),
+                    Content = table.Column<string>(type: "text", nullable: false),
+                    IsCorrect = table.Column<bool>(type: "boolean", nullable: false),
+                    QuestionID = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Answers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Answers_Questions_QuestionID",
+                        column: x => x.QuestionID,
+                        principalTable: "Questions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Answers_QuestionID",
                 table: "Answers",
                 column: "QuestionID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Answers_QuizId",
-                table: "Answers",
-                column: "QuizId");
+                name: "IX_Questions_QuizID",
+                table: "Questions",
+                column: "QuizID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserQuizzes_QuizID",
@@ -135,6 +134,18 @@ namespace API.Migrations
                 name: "IX_UserQuizzes_UserID",
                 table: "UserQuizzes",
                 column: "UserID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Email",
+                table: "Users",
+                column: "Email",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Username",
+                table: "Users",
+                column: "Username",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -150,10 +161,10 @@ namespace API.Migrations
                 name: "Questions");
 
             migrationBuilder.DropTable(
-                name: "Quizzes");
+                name: "Users");
 
             migrationBuilder.DropTable(
-                name: "Users");
+                name: "Quizzes");
         }
     }
 }

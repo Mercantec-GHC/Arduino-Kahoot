@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace API.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    [Migration("20241125083637_init")]
-    partial class init
+    [Migration("20241127120401_Updated-AnswerModel")]
+    partial class UpdatedAnswerModel
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -30,7 +30,7 @@ namespace API.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("text");
 
-                    b.Property<string>("AnswerContext")
+                    b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -44,17 +44,12 @@ namespace API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("QuizId")
-                        .HasColumnType("text");
-
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
                     b.HasIndex("QuestionID");
-
-                    b.HasIndex("QuizId");
 
                     b.ToTable("Answers");
                 });
@@ -80,6 +75,8 @@ namespace API.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("QuizID");
+
                     b.ToTable("Questions");
                 });
 
@@ -96,10 +93,6 @@ namespace API.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("QuizIDForQuestion")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -147,6 +140,12 @@ namespace API.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("Username")
+                        .IsUnique();
+
                     b.ToTable("Users");
                 });
 
@@ -185,10 +184,15 @@ namespace API.Migrations
                         .HasForeignKey("QuestionID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
 
+            modelBuilder.Entity("API.Models.Question", b =>
+                {
                     b.HasOne("API.Models.Quiz", null)
-                        .WithMany("Answers")
-                        .HasForeignKey("QuizId");
+                        .WithMany("Questions")
+                        .HasForeignKey("QuizID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("API.Models.UserQuiz", b =>
@@ -217,7 +221,7 @@ namespace API.Migrations
 
             modelBuilder.Entity("API.Models.Quiz", b =>
                 {
-                    b.Navigation("Answers");
+                    b.Navigation("Questions");
 
                     b.Navigation("UserQuizzes");
                 });

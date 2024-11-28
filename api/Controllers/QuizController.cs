@@ -18,7 +18,7 @@
         {
             return await _context.Quizzes
                 .Include(q => q.UserQuizzes)
-                .Include(q => q.Answers)
+                .Include(q => q.Questions)
                 .ToListAsync();
         }
 
@@ -28,7 +28,7 @@
         {
             var quiz = await _context.Quizzes
                 .Include(q => q.UserQuizzes)
-                .Include(q => q.Answers)
+                .Include(q => q.Questions)
                 .FirstOrDefaultAsync(q => q.Id == id);
 
             if (quiz == null)
@@ -46,8 +46,11 @@
             // Map DTO to the Quiz model
             var quiz = new Quiz
             {
+                Id = Guid.NewGuid().ToString("N"),
                 Name = createQuizDTO.Name,
                 Description = createQuizDTO.Description,
+                CreatedAt = DateTime.UtcNow.AddHours(1),
+                UpdatedAt = DateTime.UtcNow.AddHours(1),
             };
 
             _context.Quizzes.Add(quiz);
