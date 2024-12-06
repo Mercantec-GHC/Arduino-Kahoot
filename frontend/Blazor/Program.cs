@@ -1,4 +1,6 @@
 using Blazor.Components;
+using Microsoft.Extensions.DependencyInjection;
+
 
 namespace Blazor
 {
@@ -11,6 +13,8 @@ namespace Blazor
             // Add services to the container.
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
+            builder.Services.AddHttpClient();
+
 
             var app = builder.Build();
 

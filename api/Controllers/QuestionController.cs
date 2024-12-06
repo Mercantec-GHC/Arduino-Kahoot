@@ -34,10 +34,7 @@ namespace API.Controllers
                 {
                     Content = a.Content,
                     IsCorrect = a.IsCorrect,
-                    QuestionID = a.QuestionID,
-                    Id = a.Id,
-                    CreatedAt = a.CreatedAt,
-                    UpdatedAt = a.UpdatedAt
+                    Id = a.Id
                 }).ToList()
             }).ToList();
         }
@@ -63,7 +60,8 @@ namespace API.Controllers
                 Answers = question.Answers.Select(a => new Answer
                 {
                     Content = a.Content,
-                    IsCorrect = a.IsCorrect
+                    IsCorrect = a.IsCorrect,
+                    Id = a.Id
                 }).ToList()
             };
         }

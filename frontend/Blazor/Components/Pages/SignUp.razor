@@ -1,0 +1,63 @@
+﻿@page "/signup"
+@inject NavigationManager NavManager
+@inject HttpClient Http
+
+@using System.ComponentModel.DataAnnotations
+@using API.Models
+@using System.Net.Http
+
+<h1>Welcome to Blazor!</h1>
+
+<p>Sign up page</p>
+
+<EditForm Model="signUpModel" OnValidSubmit="SignUpScript">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <label for="email">Email:</label>
+    <InputText @bind-Value="signUpModel.Email" required />
+    <br />
+
+    <label for="username">Username:</label>
+    <InputText @bind-Value="signUpModel.Username" required />
+    <div></div>
+    <br />
+
+    <label for="password">Password:</label>
+    <InputText @bind-Value="signUpModel.Password" required />
+    <br />
+
+    <button type="submit">Sign up</button>
+</EditForm>
+
+<p>@responseMessage</p>
+
+
+@code {
+    private string responseMessage = "";
+    public CreateUserDTO signUpModel = new CreateUserDTO();
+
+
+
+    private async Task SignUpScript()
+    {
+        try
+        {
+            var response = await Http.PostAsJsonAsync("https://arduino-kahoot.onrender.com/api/User/createUser", signUpModel);
+
+            if (response.IsSuccessStatusCode)
+            {
+                responseMessage = "Sign-up successful!";
+                NavManager.NavigateTo("/");
+            }
+            else
+            {
+                responseMessage = "Sign-up failed!";
+            }
+        }
+        catch (Exception ex)
+        {
+            responseMessage = $"An error occurred: {ex.Message}";
+        }
+    }
+}

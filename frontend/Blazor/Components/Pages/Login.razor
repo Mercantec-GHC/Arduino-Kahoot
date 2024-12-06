@@ -1,0 +1,78 @@
+﻿@page "/login"
+@inject NavigationManager NavManager
+@inject HttpClient Http
+@inject IJSRuntime JS
+
+@using System.ComponentModel.DataAnnotations
+@using API.Models
+@using System.Net.Http
+
+<h1>Welcome to SHS!</h1>
+
+<p>Login page</p>
+
+<EditForm Model="loginModel" OnValidSubmit="LoginTask">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <label for="email">Email:</label>
+    <InputText @bind-Value="loginModel.Email" required />
+    <br />
+
+    <label for="password">Password:</label>
+    <InputText @bind-Value="loginModel.Password" required />
+    <br />
+
+    <button class="button" type="submit">Login</button>
+</EditForm>
+
+<p>@responseMessage</p>
+
+
+@code {
+    private string responseMessage = "ResponseMessage";
+    public LoginDTO loginModel = new LoginDTO();
+
+
+
+    private async Task LoginTask()
+    {
+        try
+        {
+            var response = await Http.PostAsJsonAsync("https://arduino-kahoot.onrender.com/api/User/login", loginModel);
+            Console.WriteLine(response);
+
+
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<LoginResult>();
+                var jwtToken = result?.Token;
+                var username = result?.Username;
+
+                if (jwtToken != null)
+                {
+                    await JS.InvokeVoidAsync("localStorage.setItem", "jwtToken", jwtToken);
+                    await JS.InvokeVoidAsync("localStorage.setItem", "username", username);
+                    responseMessage = "Login successful";
+                    NavManager.NavigateTo("/");
+                }
+
+            }
+            else
+            {
+                responseMessage = "Login failed!";
+            }
+        }
+        catch (Exception ex)
+        {
+            responseMessage = $"An error occurred: {ex.Message}";
+        }
+    }
+
+    public class LoginResult
+    {
+        public string Token { get; set; }
+        public string Username { get; set; }
+        public string Id { get; set; }
+    }
+}

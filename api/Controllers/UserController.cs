@@ -24,7 +24,7 @@
                 Username = user.Username
             })
             .ToListAsync();
-
+            
             return Ok(User);
         }
 

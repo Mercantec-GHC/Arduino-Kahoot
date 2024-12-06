@@ -19,6 +19,7 @@
             return await _context.Quizzes
                 .Include(q => q.UserQuizzes)
                 .Include(q => q.Questions)
+                    .ThenInclude(question => question.Answers)
                 .ToListAsync();
         }
 
@@ -29,6 +30,7 @@
             var quiz = await _context.Quizzes
                 .Include(q => q.UserQuizzes)
                 .Include(q => q.Questions)
+                    .ThenInclude(question => question.Answers)
                 .FirstOrDefaultAsync(q => q.Id == id);
 
             if (quiz == null)
@@ -49,6 +51,7 @@
                 Id = Guid.NewGuid().ToString("N"),
                 Name = createQuizDTO.Name,
                 Description = createQuizDTO.Description,
+                IsPublic = createQuizDTO.IsPublic,
                 CreatedAt = DateTime.UtcNow.AddHours(1),
                 UpdatedAt = DateTime.UtcNow.AddHours(1),
             };

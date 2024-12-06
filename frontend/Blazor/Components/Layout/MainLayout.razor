@@ -1,4 +1,9 @@
 ﻿@inherits LayoutComponentBase
+@inject NavigationManager NavManager
+@inject IJSRuntime JS
+
+@using API.Models
+@using System.Net.Http
 
 <div class="page">
     <div class="sidebar">
@@ -7,7 +12,23 @@
 
     <main>
         <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+            @if (loginStatus == true)
+            {
+                <div class="dropdown">
+                    <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        @displayUsername
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><button type="button" class="btn btn-light">Settings</button></li>
+                        <li><button type="button" class="btn btn-danger" @onclick="LogOut">Log out</button></li>
+                    </ul>
+                </div>
+            }
+            else
+            {
+                <button class="btn btn-primary" @onclick="RedirectSignUp">Sign up</button>
+                <button class="btn btn-primary" @onclick="RedirectLogin">Login</button>
+            }
         </div>
 
         <article class="content px-4">
@@ -21,3 +42,46 @@
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
 </div>
+
+@code {
+    private bool loginStatus;
+
+    private string displayUsername;
+
+    private async Task LogOut()
+    {
+        await JS.InvokeAsync<string>("localStorage.removeItem", "username");
+        await JS.InvokeAsync<string>("localStorage.removeItem", "jwtToken");
+        await JS.InvokeVoidAsync("location.reload");
+    }
+
+    private void RedirectSignUp()
+    {
+        Console.WriteLine("Sign up button clicked!");
+        NavManager.NavigateTo("/signup");
+    }
+    private void RedirectLogin()
+    {
+        Console.WriteLine("Login button clicked!");
+        NavManager.NavigateTo("/login");
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+
+        if (firstRender)
+        {
+            var token = await JS.InvokeAsync<string>("localStorage.getItem", "jwtToken");
+            displayUsername = await JS.InvokeAsync<string>("localStorage.getItem", "username");
+            loginStatus = !string.IsNullOrEmpty(token);
+            if (loginStatus == true)
+            {
+                Console.WriteLine("Token found: " + token);
+                StateHasChanged();
+            }
+            else
+            {
+                Console.WriteLine("Token not found :(");
+            }
+        }
+    }
+}

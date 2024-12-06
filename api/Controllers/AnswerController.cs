@@ -23,11 +23,12 @@ namespace API.Controllers
             var answers = await _context.Answers
                 .ToListAsync();
 
-            return answers.Select(q => new AnswerResponseDTO
+            return answers.Select(a => new AnswerResponseDTO
             {
-                Id = q.Id,
-                Content = q.Content,
-                QuestionID = q.QuestionID
+                Id = a.Id,
+                Content = a.Content,
+                QuestionID = a.QuestionID,
+                IsCorrect = a.IsCorrect
             }).ToList();
         }
 
@@ -48,6 +49,7 @@ namespace API.Controllers
                 Id = answer.Id,
                 Content = answer.Content,
                 QuestionID = answer.QuestionID,
+                IsCorrect = answer.IsCorrect
             };
         }
 
@@ -70,6 +72,7 @@ namespace API.Controllers
                 Id = Guid.NewGuid().ToString("N"),
                 Content = createAnswerDTO.Content,
                 QuestionID = createAnswerDTO.QuestionID,
+                IsCorrect = createAnswerDTO.IsCorrect,
                 CreatedAt = DateTime.UtcNow.AddHours(1),
                 UpdatedAt = DateTime.UtcNow.AddHours(1),
             };
@@ -82,16 +85,17 @@ namespace API.Controllers
             return Ok($"Question added to quiz {question.Content}");
         }
 
-        // PUT api/<AnswerController>/5
+        // PUT api/Answers/5
         [HttpPut("{id}")]
         public void Put(int id, [FromBody] string value)
         {
         }
 
-        // DELETE api/<AnswerController>/5
+        // DELETE api/Answers/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public void Delete(string id)
         {
+
         }
     }
 }

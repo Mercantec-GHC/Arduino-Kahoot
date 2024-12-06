@@ -1,7 +1,73 @@
 ﻿@page "/"
+@inject NavigationManager NavManager
+@inject IJSRuntime JS
+@inject HttpClient Http
 
-<PageTitle>Home</PageTitle>
+@using System.ComponentModel.DataAnnotations
+@using API.Models
+@using System.Net.Http
 
-<h1>Hello, world!</h1>
+<h1>Welcome to Arduino-Kahoot!</h1>
 
-Welcome to your new app.
+<p>This is the home page of your quizzes using the Arduino controller!</p>
+<br />
+
+@if (loginStatus == true)
+{
+    if (quizzes == null)
+    {
+        text = "Loading";
+    }
+    else if (quizzes.Count == 0)
+    {
+        text = "No devices found";
+    }
+    else
+    {
+        text = "";
+        <ul class="list-group">
+            @foreach (var quiz in quizzes)
+            {
+                <h1>Insert Quiz here</h1>
+            }
+        </ul>
+    }
+}
+else
+{
+    text = "Log in to view quizzes";
+}
+
+<p>@text</p>
+
+
+@code {
+    private string text = "";
+    private bool loginStatus;
+    private List<Quiz> quizzes;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        quizzes = await Http.GetFromJsonAsync<List<Quiz>>("https://arduino-kahoot.onrender.com/api/Quiz");
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+
+        if (firstRender)
+        {
+            var token = await JS.InvokeAsync<string>("localStorage.getItem", "jwtToken");
+            loginStatus = !string.IsNullOrEmpty(token);
+            StateHasChanged();
+            if (loginStatus == true)
+            {
+                Console.WriteLine("Token found: " + token);
+            }
+            else
+            {
+                Console.WriteLine("Token not found :(");
+            }
+        }
+    }
+}
