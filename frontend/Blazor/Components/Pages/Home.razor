@@ -20,7 +20,7 @@
     }
     else if (quizzes.Count == 0)
     {
-        text = "No devices found";
+        text = "No public quizzes found";
     }
     else
     {
@@ -28,7 +28,20 @@
         <ul class="list-group">
             @foreach (var quiz in quizzes)
             {
-                <h1>Insert Quiz here</h1>
+                <!-- Horizontal card -->
+                <div class="card overflow-hidden specific-w-300 specific-w-sm-450 mw-100">
+                    <div class="row g-0">
+                        <div class="col-sm-5">
+                            <button type="button" class="btn btn-primary">Play</button>
+                        </div>
+                        <div class="col-sm-7">
+                            <div class="card-body">
+                                <h5 class="card-title mb-1">Name</h5>
+                                <p class="card-text">Desciption</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             }
         </ul>
     }
@@ -49,7 +62,8 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        quizzes = await Http.GetFromJsonAsync<List<Quiz>>("https://arduino-kahoot.onrender.com/api/Quiz");
+        var quizzes = await Http.GetFromJsonAsync<List<Quiz>>("https://arduino-kahoot.onrender.com/api/Quiz");
+        @*quizzes = allQuizzes?.Where(q => q.IsPublic).ToList();*@
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

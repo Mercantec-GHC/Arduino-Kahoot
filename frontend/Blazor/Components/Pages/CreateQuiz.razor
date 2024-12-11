@@ -1,15 +1,84 @@
 ﻿@page "/createQuiz"
 @inject NavigationManager NavManager
+@inject IJSRuntime JS
 @inject HttpClient Http
 
 @using System.ComponentModel.DataAnnotations
 @using API.Models
 @using System.Net.Http
 
-<h2>Create Quiz</h2>
+@if (loginStatus == true)
+{
+    if (quizzes == null)
+    {
+        text = "Loading";
+    }
+    else if (quizzes.Count == 0)
+    {
+        text = "No public quizzes found";
+    }
+    else
+    {
+        text = "";
+        <ul class="list-group">
+            @foreach (var quiz in quizzes)
+            {
+                <div class="list-group-item">
+                    <!-- Horizontal card -->
+                    <div class="card overflow-hidden specific-w-300 specific-w-sm-450 mw-100">
+                        <div class="row g-0">
+                            <div class="col-sm-5">
+                                <button type="button" class="btn btn-primary">Play</button>
+                            </div>
+                            <div class="col-sm-7">
+                                <div class="card-body">
+                                    <h5 class="card-title mb-1">@quiz</h5>
+                                    <p class="card-text">@quiz</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </ul>
+    }
+}
+else
+{
+    text = "Log in to create quizzes";
+}
 
+<p>@text</p>
 
 
 @code {
+    private string text = "";
+    private bool loginStatus;
+    private List<Quiz> quizzes;
 
+
+    protected override async Task OnInitializedAsync()
+    {
+        var allQuizzes = await Http.GetFromJsonAsync<List<Quiz>>("https://arduino-kahoot.onrender.com/api/Quiz");
+        @*quizzes = allQuizzes?.Where(q => q.IsPublic).ToList();*@
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+
+        if (firstRender)
+        {
+            var token = await JS.InvokeAsync<string>("localStorage.getItem", "jwtToken");
+            loginStatus = !string.IsNullOrEmpty(token);
+            StateHasChanged();
+            if (loginStatus == true)
+            {
+                Console.WriteLine("Token found: " + token);
+            }
+            else
+            {
+                Console.WriteLine("Token not found :(");
+            }
+        }
+    }
 }
