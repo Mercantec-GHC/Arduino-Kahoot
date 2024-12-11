@@ -9,43 +9,54 @@
 
 @if (loginStatus == true)
 {
-    if (quizzes == null)
+    <h3>Create Quiz</h3>
+
+    <div>
+        <label>Quiz Name:</label>
+        <input type="text" @bind="Quiz.Name" />
+    </div>
+
+    <div>
+        <label>Description:</label>
+        <textarea @bind="Quiz.Description"></textarea>
+    </div>
+
+    <h4>Questions</h4>
+
+    @foreach (var question in Questions)
     {
-        text = "Loading";
-    }
-    else if (quizzes.Count == 0)
-    {
-        text = "No public quizzes found";
-    }
-    else
-    {
-        text = "";
-        <ul class="list-group">
-            @foreach (var quiz in quizzes)
+        var createQuestion = new CreateQuestionDTO();
+        var reAnswer = new CreateAnswerDTO();
+        <div>
+            <h5>Question @((Questions.IndexOf(question) + 1))</h5>
+            <label>Content:</label>
+            <input type="text" @bind="question.Content" />
+
+            <h6>Answers</h6>
+            @foreach (var answer in question.Answers)
             {
-                <div class="list-group-item">
-                    <!-- Horizontal card -->
-                    <div class="card overflow-hidden specific-w-300 specific-w-sm-450 mw-100">
-                        <div class="row g-0">
-                            <div class="col-sm-5">
-                                <button type="button" class="btn btn-primary">Play</button>
-                            </div>
-                            <div class="col-sm-7">
-                                <div class="card-body">
-                                    <h5 class="card-title mb-1">@quiz</h5>
-                                    <p class="card-text">@quiz</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div>
+                    <label>Answer:</label>
+                    <input type="text" @bind="answer.Content" />
+                    <label>
+                        <input type="checkbox" @bind="answer.IsCorrect" />
+                        Correct
+                    </label>
+                    <button @onclick="() => RemoveAnswer(createQuestion, reAnswer)">Remove Answer</button>
                 </div>
             }
-        </ul>
+            <button @onclick="() => AddAnswer(createQuestion)">Add Answer</button>
+        </div>
+        <button @onclick="() => RemoveQuestion(createQuestion)">Remove Question</button>
     }
+
+    <button @onclick="AddQuestion">Add Question</button>
+
+    <button @onclick="SubmitQuiz">Submit Quiz</button>
 }
 else
 {
-    text = "Log in to create quizzes";
+    //text = "Log in to create a quiz";
 }
 
 <p>@text</p>
@@ -79,6 +90,48 @@ else
             {
                 Console.WriteLine("Token not found :(");
             }
+        }
+    }
+    private CreateQuizDTO Quiz = new CreateQuizDTO();
+    private List<QuestionResponseDTO> Questions = new List<QuestionResponseDTO>();
+    private List<CreateQuestionDTO> CreatingQuestions = new List<CreateQuestionDTO>();
+
+    private void AddQuestion()
+    {
+        CreatingQuestions.Add(new CreateQuestionDTO());
+    }
+
+    private void RemoveQuestion(CreateQuestionDTO question)
+    {
+        CreatingQuestions.Remove(question);
+    }
+
+    private void AddAnswer(CreateQuestionDTO question)
+    {
+        question.Answers.Add(new CreateAnswerDTO());
+    }
+
+    private void RemoveAnswer(CreateQuestionDTO question, CreateAnswerDTO answer)
+    {
+        question.Answers.Remove(answer);
+    }
+
+    private async Task SubmitQuiz()
+    {
+        var quizData = new
+        {
+            Quiz,
+            Questions
+        };
+
+        var response = await Http.PostAsJsonAsync("https://your-api-url/api/Quiz", quizData);
+        if (response.IsSuccessStatusCode)
+        {
+            // Redirect or show success message
+        }
+        else
+        {
+            // Handle errors
         }
     }
 }

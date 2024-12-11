@@ -10,6 +10,7 @@
     {
         public string Content { get; set; }
         public string QuizID { get; set; }
+        public List<CreateAnswerDTO> Answers { get; set; } = new List<CreateAnswerDTO>();
     }
     public class QuestionResponseDTO
     {

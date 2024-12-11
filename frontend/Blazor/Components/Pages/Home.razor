@@ -62,7 +62,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        var quizzes = await Http.GetFromJsonAsync<List<Quiz>>("https://arduino-kahoot.onrender.com/api/Quiz");
+        quizzes = await Http.GetFromJsonAsync<List<Quiz>>("https://arduino-kahoot.onrender.com/api/Quiz");
         @*quizzes = allQuizzes?.Where(q => q.IsPublic).ToList();*@
     }
 
